@@ -4,11 +4,25 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# set interactive mode to enable defining a gsed alias
+shopt -s expand_aliases
+
+# we use sed to make in-file text replacements, but sed works differently depending on the version
+if ! sed -i '1s/^/test/' $(mktemp) 2> /dev/null; then
+    # macOS (BSD) version of sed
+    alias gsed="sed -i ''"
+else
+    # POSIX compliant version of sed
+    alias gsed="sed -i"
+fi
+
+export gsed
+
 hash_comment () {
   echo "$1"
   if ! grep -q "SPDX-License-Identifier" "$1"
   then
-    sed -i '' '1i\
+    gsed '1i\
     # Copyright 2021 The MLX Contributors\
     #\
     # SPDX-License-Identifier: Apache-2.0\
@@ -20,7 +34,7 @@ slash_comment () {
   echo "$1"
   if ! grep -q "SPDX-License-Identifier" "$1"
   then
-    sed -i '' '1i\
+    gsed '1i\
     // Copyright 2021 The MLX Contributors\
     //\
     // SPDX-License-Identifier: Apache-2.0\
@@ -32,7 +46,7 @@ css_comment () {
   echo "$1"
   if ! grep -q "SPDX-License-Identifier" "$1"
   then
-    sed -i '' '1i\
+    gsed '1i\
     /*\
     * Copyright 2021 The MLX Contributors\
     *\
@@ -46,7 +60,7 @@ html_comment () {
   echo "$1"
   if ! grep -q "SPDX-License-Identifier" "$1"
   then
-    sed -i '' '1i\
+    gsed '1i\
     <!--\
       Copyright 2021 The MLX Contributors\
       \

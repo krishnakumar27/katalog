@@ -26,6 +26,20 @@ then
 fi
 
 
+# set interactive mode to enable defining a gsed alias
+shopt -s expand_aliases
+
+# we use sed to make in-file text replacements, but sed works differently depending on the version
+if ! sed -i '1s/^/test/' $(mktemp) 2> /dev/null; then
+    # macOS (BSD) version of sed
+    alias gsed="sed -i ''"
+else
+    # POSIX compliant version of sed
+    alias gsed="sed -i"
+fi
+
+export gsed
+
 update_requirements() {
 
   echo "$1"
@@ -52,7 +66,7 @@ update_requirements() {
   )
 
   # use sed to replace the old requirements with the newly computed ones
-  sed -i '' "s/^\( *\)requirements: .*/\1requirements: '${updated_requirements}'/" "$1"
+  gsed "s/^\( *\)requirements: .*/\1requirements: '${updated_requirements}'/" "$1"
 
   # show the before/after diff in the console output
   git diff "$1" | grep -E "^(\+|-) *requirements: "
